@@ -1,0 +1,6 @@
+langchain==0.0.325
+matplotlib==3.8.0
+pandas
+langchain-experimental==0.0.36
+sqlalchemy==1.4.47
+PyAthena[SQLAlchemy]==2.25.2

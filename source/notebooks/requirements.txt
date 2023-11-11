@@ -1,4 +1,4 @@
-langchain==0.0.325
+langchain==0.0.329
 matplotlib==3.8.0
 pandas
 langchain-experimental==0.0.36

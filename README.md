@@ -20,14 +20,14 @@ By utilizing Bedrock's generative artificial intelligence capabilities to genera
 ## **Solution Architecture**
 ![Solution Architecture](/sagemaker_gen_ai_architecture.png)
 
-1. Security Lake is setup in a separate AWS account with the appropriate sources (i.e. VPC Flow Logs, Security Hub, CloudTrail, Route53) configured.
-2. Create subscriber query access from source Security Lake AWS account to Subscriber AWS account.
-3. Resource share request accepted in the Subscriber AWS account where this solution is deployed.
-4. Create a database in Lake Formation in the Subscriber AWS account and grant access for the Athena tables in the Security Lake AWS account.
-5. Add model access for Amazon Bedrock Large Language Model (LLM) Claude v2.
-6. VPC is provisioned for SageMaker with an IGW, NAT GW, and VPC endpoints for all AWS services within the solution. IGW/NAT is required to install external open-source packages.
-7. SageMaker Studio Domain is created in VPCOnly mode with a single SageMaker user-profile that is tied to a dedicated IAM role. As part of the SageMaker deployment, an EFS also gets provisioned for the SageMaker Domain.
-8. A dedicated IAM role is created to restrict access to create/access SageMaker Domain's presigned URL from a specific CIDR for accessing the SageMaker notebook.
+1. (Prerequisite) Security Lake is setup in a separate AWS account with the appropriate sources (i.e. Amazon Virtual Private Cloud (VPC) Flow Logs, AWS Security Hub, AWS CloudTrail, Amazon Route53) configured.
+2. (Prerequisite) Create subscriber query access from source Security Lake AWS account to Subscriber AWS account.
+3. (Prerequisite) Accepted resource share request in the Subscriber AWS account where this solution is deployed.
+4. (Prerequisite) Create a database link in Lake Formation in the Subscriber AWS account and grant access for the Athena tables in the Security Lake AWS account.
+5. (Prerequisite) Granted model access for Amazon Bedrock Large Language Model (LLM) Claude v2 in the AWS Subscriber account where the solution will be deployed.
+6. A VPC will be provisioned for SageMaker with an IGW, NAT GW, and VPC endpoints for all AWS services within the solution. IGW/NAT is required to install external open-source packages.A
+7. A SageMaker Studio domain is created in VPCOnly mode with a single SageMaker user-profile that is tied to an IAM role. As part of the SageMaker deployment, an EFS also gets provisioned for the SageMaker Domain.
+8. A dedicated IAM role is created to restrict access to create/access SageMaker Domain’s presigned URL from a specific CIDR for accessing the SageMaker notebook.
 9. CodeCommit repository containing python notebooks utilized for the AI/ML workflow by the SageMaker user-profile.
 10. Athena workgroup is created for Security Lake queries with a S3 bucket for output location (Access logging configured for the output bucket).
 <br><br>
@@ -66,22 +66,27 @@ Now that you have deployed the SageMaker solution, you will need to grant SageMa
 **Grant permisson to Security Lake Database**
 1. Copy ARN “arn:aws:iam::********************:role/sagemaker-user-profile-for-security-hub” 
 2. Go to Lake Formation in console
-3. Click on amazon_security_lake_glue_db_us_east_1 database
-4. From Actions Dropdown choose Grant
-5. In grant Data Permissions select SAML Users and Groups
-6. Paste the SageMaker Domain user profile ARN
-7. In Database Permissions choose Describe and click on Grant 
+3. Select the amazon_security_lake_glue_db_<YOUR-REGION>  database.
+    1. For example, if your Security Lake is in us-east-1 the value would be amazon_security_lake_glue_db_us_east_1
+4. From the Actions  Dropdown, select Grant.
+5. In Grant Data  Permissions, select SAML Users and Groups.
+6. Paste the SageMaker user  profile ARN from Step 1.
+7. In Database  Permissions, select Describe and then Grant.
 <br><br> 
 
-**Grant permisson to Security Lake - Security Hub Table**
-1. Copy ARN “arn:aws:iam::********************:role/sagemaker-user-profile-for-security-hub” 
+**Grant permisson to Security Lake table(s)**
+1. Copy the SageMaker user-profile ARN “arn:aws:iam::********************:role/sagemaker-user-profile-for-security-lake” 
 2. Go to Lake Formation in console
-3. Click on amazon_security_lake_glue_db_us_east_1 database and the click on view tables button
-4. Click on amazon_security_lake_table_us_east_1_sh_findings table
-5. From Actions Dropdown choose Grant
-6. In grant Data Permissions select SAML Users and Groups
-7. Paste the SageMaker Domain user profile ARN
-8. In Table Permissions choose Describe and select then click on Grant
+3. Select the amazon_security_lake_glue_db_<YOUR-REGION>  database.
+    1. For example, if your Security Lake is in us-east-1 the value would be amazon_security_lake_glue_db_us_east_1
+4. Choose View Tables.
+5. Select the amazon_security_lake_table_<YOUR-REGION>_sh_findings_1_0  table.
+    1. For example, if your Security Lake is in us-east-1 the value would be amazon_security_lake_table_us_east_1_sh_findings_1_0
+    2. Note: Each table must be granted access individually. Selecting “All Tables“ will not grant the appropriate access needed to query Security Lake.
+6. From Actions Dropdown, select Grant.
+7. In Grant Data  Permissions, select SAML Users and Groups.
+8. Paste the SageMaker user-profile ARN from Step 1.
+9. In Table Permissions, select Describe and then Grant.
 <br>
 
 **CodeCommit**

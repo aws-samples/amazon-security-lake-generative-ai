@@ -546,7 +546,7 @@ export class SageMakerDomainStack extends Stack {
             "*"
           ]   
         }),new iam.PolicyStatement({
-          sid: "BedrockReadPermissions",
+          sid: "BedrockWritePermissions",
           effect: iam.Effect.ALLOW,
           actions: [
             "bedrock:InvokeModel", 
